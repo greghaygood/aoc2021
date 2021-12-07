@@ -18,7 +18,7 @@ class Area
 end
 
 class VentPlot
-    @@SNAP_HV = true
+    @@SNAP_HV = false
 
     def initialize
         @grid = []
@@ -57,11 +57,11 @@ class VentPlot
 
             x1, y1 = start.split(',').map(&:to_i)
             x2, y2 = stop.split(',').map(&:to_i)
-            #puts "start: #{x1},#{y1}  stop: #{x2},#{y2}"
+            # puts "start: #{x1},#{y1}  stop: #{x2},#{y2}"
             @X = [@X, x1, x2].max
             @Y = [@Y, y1, y2].max
 
-            if @@SNAP_HV && (x1==x2 || y1==y2 )
+            if (x1==x2 || y1==y2) ## handle the straight lines
                 x1, x2 = [x1,x2].sort # so the range works
                 y1, y2 = [y1,y2].sort # so the range works
                 (x1..x2).each do |x|
@@ -75,8 +75,32 @@ class VentPlot
                         @grid[x][y] = a
                     end
                 end
-            end
+            elsif !@@SNAP_HV 
+                x_dir = x2 <=> x1
+                y_dir = y2 <=> y1
+                x = x1
+                y = y1
+                # puts "Steps: x:#{x_dir}, y:#{y_dir}"
+                x_iter = (x2 - x1).abs + 1
+                y_iter = (y2 - y1).abs + 1
+                while x_iter > 0
+                    while y_iter > 0
+                        #puts "X @ #{x},#{y}"
+                        @grid[x] = [] if @grid[x].nil?
+                        @grid[x][y] = Area.new(x, y) if @grid[x][y].nil?
 
+                        a = @grid[x][y]
+                        a.vents += 1
+                        @grid[x][y] = a
+
+                        x += x_dir
+                        y += y_dir
+                        y_iter -= 1
+                    end
+
+                    x_iter -= 1              
+                end
+            end
         end
         
         puts "Grid: X:#{@X} Y:#{@Y}"
