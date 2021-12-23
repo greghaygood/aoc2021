@@ -58,7 +58,7 @@ class SignalUnscrambler
         end
 
         decoded_h = {input: decoded[0], output: decoded[1]}
-        # puts decoded_h
+        #puts decoded_h
         return decoded_h
     end
 
